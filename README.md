@@ -37,7 +37,7 @@ Manual mall parking systems are slow, prone to errors and create long queues at 
 > - Python core (functions, loops, dictionaries)  
 > - requests (for API calls)  
 > - json module (to parse data)  
-> - streamlit (for GUI)
+> - streamlit (for user interface)
 
 ---
 
