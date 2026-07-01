@@ -3,7 +3,7 @@
 ---
 
 ## Project Title
-Mall-Parking-System
+Automated Mall-Parking-System
 
 ---
 
