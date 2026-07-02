@@ -52,14 +52,14 @@ Frankfurter API will be used to retrieve current exchange rates, allowing parkin
 
 ## Success Criteria
 The program is considered fully successful when it can:
-  > Record vehicle entry and exit times.
-  > Calculate parking duration accurately.
-  > Apply the free parking period and loyalty grace period correctly.
-  > Calculate parking charges automatically.
-  > Convert charges into selected currencies using a live exchange rate.
-  > Store all parking records in SQLite.
-  > Handle invalid user input gracefully.
-  > Continue functioning correctly after application restarts.
+  > - Record vehicle entry and exit times.
+  > - Calculate parking duration accurately.
+  > - Apply the free parking period and loyalty grace period correctly.
+  > - Calculate parking charges automatically.
+  > - Convert charges into selected currencies using a live exchange rate.
+  > - Store all parking records in SQLite.
+  > - Handle invalid user input gracefully.
+  > - Continue functioning correctly after application restarts.
 
 ---
 
