@@ -8,7 +8,7 @@ Automated Mall-Parking-System
 ---
 
 ## Project Description
-This project helps the user to track vehicle entry and exit times, calculate the parking fees and bill them if they stay for more than 30 minutes and give a grace period of 20 more minutes to loyal/frequent customers. It uses file handling to maintain a persistent database of loyal/frequent customers for grace period extensions and uses a live currency API to process payments in both KES and foreign currencies.
+This project helps the user (gate attendants) to track vehicle entry and exit times, calculate the parking fees and bill them accordingly. A grace period of 50 minutes will be applied and if they exceed, they will be charged 200 Kenya Shillings for every extra 20 minutes that they extend with. However, there will be an extended grace period of 30 minutes for frequent customers who will be identified and granted the reward after their 20th visit to the mall in a span of 3 months and they will be identified by their name and vehicle number plate. If a customer wishes to leave their car parked there for longer, they will be charged 3,000 Kenyan Shilling for every 24 hours since they checked in. The program uses databases to maintain a persistent record of frequent customers for grace period extensions and uses a live currency API to process payments in both KES and foreign currencies.
 
 ---
 
@@ -18,37 +18,52 @@ Manual mall parking systems are slow, prone to errors and create long queues at 
 ---
 
 ## Planned Features
-- [ ] User input (number plate)
-- [ ] datetime (for time tracking)
-- [ ] math (to round up parking fractions)
-- [ ] External APIs (currency converter)
-- [ ] json
-- [ ] Databses (SQlite)
-- [ ] Loops (for and while)
-- [ ] Conditional statements
-- [ ] Dictionaries (to store API data)
-- [ ] Lists (temporarily hold data before formatting them)
-- [ ] Functions (def functions)
-- [ ] Object-oriented programming (classes)
+- [ ] Vehicle check-in
+- [ ] Vehicle check-out
+- [ ] Time stamping
+- [ ] Parking history
+- [ ] Loyalty customer management.
+- [ ] Time duration calculation
+- [ ] Automatic parking fee calculation.
+- [ ] Multi-currency payment calculation
+- [ ] SMS Receipt generation
 
 ---
 
 ## Technologies / Concepts I plan to use
-> - Python core (functions, loops, dictionaries)  
+> - Python core (functions, loops, conditional statements, lists, dictionaries)  
 > - requests (for API calls)  
 > - json module (to parse data)  
 > - streamlit (for user interface)
+> - SQLite
+> - Requests
+> - datetime
+> - math
+> - External APIs 
+> - JSON
+> - Object-oriented programming 
 
 ---
 
 ## Data Source 
-- [ ] API (Foreign Exchange Rate API)
+Frankfurter API will be used to retrieve current exchange rates, allowing parking fees to be displayed in both Kenyan Shillings (KES) and selected foreign currencies.
 
 ---
 
 ## Success Criteria
-The program is considered fully successful when it can dynamically process vehicle entry and exit inputs in a continuous terminal loop, accurately enforce parking limits and VIP grace periods by pulling and saving records from an active SQLite database and complete a checkout transaction using a live-fetched currency conversion rate without dropping data when the application restarts.
+The program is considered fully successful when it can:
+  > Record vehicle entry and exit times.
+  > Calculate parking duration accurately.
+  > Apply the free parking period and loyalty grace period correctly.
+  > Calculate parking charges automatically.
+  > Convert charges into selected currencies using a live exchange rate.
+  > Store all parking records in SQLite.
+  > Handle invalid user input gracefully.
+  > Continue functioning correctly after application restarts.
 
 ---
 
 ## Stretch Goals
+  > QR code or barcode ticket generation
+  > Automatic parking slot allocation.
+  > Vehicle entry using license plate recognition.
