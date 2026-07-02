@@ -64,6 +64,6 @@ The program is considered fully successful when it can:
 ---
 
 ## Stretch Goals
-  > QR code or barcode ticket generation
-  > Automatic parking slot allocation.
-  > Vehicle entry using license plate recognition.
+  > -  QR code or barcode ticket generation
+  > - Automatic parking slot allocation.
+  > - Vehicle entry using license plate recognition.
