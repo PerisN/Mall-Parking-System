@@ -21,8 +21,8 @@ Manual mall parking systems are slow, prone to errors and create long queues at 
 - [ ] Vehicle check-in
 - [ ] Vehicle check-out
 - [ ] Time stamping
-- [ ] Parking history
-- [ ] Loyalty customer management.
+- [ ] Parking sessions
+- [ ] Payment table
 - [ ] Time duration calculation
 - [ ] Automatic parking fee calculation.
 - [ ] Multi-currency payment calculation
