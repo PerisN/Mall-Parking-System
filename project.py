@@ -75,14 +75,13 @@ def exchange_rates():
         response = requests.get(api_url, timeout=5)
         if response.status_code == 200:
             data = response.json()
-            print('Raw API data received: ', data)
 
             # check if it is a list and unpack the first item
             if isinstance(data, list) and len(data) > 0:
                 data = data[0]
 
             # extract kes worth against foreign money
-            rates = data.get('rate', {})
+            rates = data.get('rates', {})
 
             if isinstance(rates, dict):
                 usd_rate = rates.get('USD')
@@ -106,11 +105,12 @@ def exchange_rates():
                 conn.commit()
                 #lock changes permanently
                 conn.close()
+
                 print('exchange_rates updated!')
                 print(f'1 KES = {usd_rate} USD | 1 KES = {eur_rate} EUR')
                 return
          
-            print('API responded but rates are missing.')
+            print('API responded but USD/EUR rates are missing.')
     except requests.RequestException as e:
         # incase of a network error
         print(f'Error: Could not connect to frankfurter API ({e}). System defaults to last cached database rates')
