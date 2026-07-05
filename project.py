@@ -1,4 +1,4 @@
-# import streamlit as st
+import streamlit as st
 import math
 from datetime import datetime, timedelta
 # timedelta represents how much time has passed(days, hours, minuetes,seconds)
@@ -269,43 +269,97 @@ def vehicle_check_out(number_plate, phone_number):
         sms_receipt(number_plate, final_amount, chosen_currency, session_id, phone_number)
         print(f'Check out complete. Proceed to exit {number_plate}!\n')
 
-def main_loop():
+ # streamlit user interface       
+def main():
+    st.set_page_config(page_title='Mall Parking System.')
     init_database()
-    exchange_rates()
 
-    # to loop continuously
-    while True:
-        print('\n--- Mall Parking System ---')
-        print('1. Vehicle Check-In')
-        print('2. Vehicle Check-Out and exit')
-        print('3. Exchange rate')
-        print('4. Shut down system terminal')
-        choice = input('\nSelect an option (1-4): ').strip()
+    st.title('Automated Mall Parking System')
 
-        if choice == "1":
-            number_plate = input('Enter vehicle number plate: ').strip().upper()
-            if number_plate:
-                vehicle_check_in(number_plate)
+    #navigation tabs
+    tab1, tab2, tab3 = st.tabs(['Vehicle Check-in', 'Vehicle Check-out', 'Exchange Rates'])
+
+    #Check in
+    with tab1:
+        st.header('Register Entry')
+        plate_in = st.text_input('Enter enter entering vehicle number plate: ', key='plate_in').strip().upper()
+        if st.button('Confirm Check-in', type='primary'):
+            if plate_in:
+                message = vehicle_check_in(plate_in)
+                st.success(message)
             else:
-                print('Error: Number plate cannot be empty.')
-        elif choice == "2":
-            number_plate = input('Enter the leaving vehicle number plate: ').strip().upper()    
-            phone_number = input('Enter phone number: ').strip()
-            if number_plate and phone_number:
-                vehicle_check_out(number_plate, phone_number)
+                st.error('Please enter number plate.')
+    #Check-out
+    with tab2:
+        st.header('Process exit and payment')
+        plate_out = st.text_input('Enter leaving vehicle number plate: ', key='plate_out').strip().upper()
+        phone_num = st.text_input('Enter drivers phone number for receipt: ', key='phone').strip()
+        currency_choice = st.selectbox('Select currency: ', ['KES', 'USD', 'EUR'])
+
+        if st.button('Complete check out and pay'):
+            if plate_out and phone_num:
+                receipt_text, duration, fee = vehicle_check_out(plate_out, phone_num)
+                if 'Error' in receipt_text:
+                    st.error(receipt_text)
+                else:
+                    st.metric(label="Total Parking Duration", value=f"{duration} Mins")
+                    st.metric(label="Base Fee Calculated", value=f"KES {fee:,.2f}")
+                    st.text_area("Receipt Details", value=receipt_text, height=180)
+                    st.success(f"Check out complete. Proceed to exit {plate_out}!")
             else:
-                print("Error: Number plate and phone number cannot be empty.")
-        elif choice == "3":
-            exchange_rates()
-        elif choice == "4":
-            print("Shutting down the system terminal. Goodbye!")
-            break
-        else:
-            print("Invalid option. Please try again.")
+                st.error("Error: Number plate and phone number cannot be empty.")
+                
+    with tab3:
+        st.header("System Exchange Rates")
+        if st.button("Fetch Fresh API Exchange Rates"):
+            status = exchange_rates()
+            st.info(status)
 
 if __name__ == "__main__":
-    # this is the loop function that handles database tables, APIs and gate menus
-    main_loop()
+    main()
+            
+
+
+
+
+
+# def main_loop():
+#     init_database()
+#     exchange_rates()
+
+#     # to loop continuously
+#     while True:
+#         print('\n--- Mall Parking System ---')
+#         print('1. Vehicle Check-In')
+#         print('2. Vehicle Check-Out and exit')
+#         print('3. Exchange rate')
+#         print('4. Shut down system terminal')
+#         choice = input('\nSelect an option (1-4): ').strip()
+
+#         if choice == "1":
+#             number_plate = input('Enter vehicle number plate: ').strip().upper()
+#             if number_plate:
+#                 vehicle_check_in(number_plate)
+#             else:
+#                 print('Error: Number plate cannot be empty.')
+#         elif choice == "2":
+#             number_plate = input('Enter the leaving vehicle number plate: ').strip().upper()    
+#             phone_number = input('Enter phone number: ').strip()
+#             if number_plate and phone_number:
+#                 vehicle_check_out(number_plate, phone_number)
+#             else:
+#                 print("Error: Number plate and phone number cannot be empty.")
+#         elif choice == "3":
+#             exchange_rates()
+#         elif choice == "4":
+#             print("Shutting down the system terminal. Goodbye!")
+#             break
+#         else:
+#             print("Invalid option. Please try again.")
+
+# if __name__ == "__main__":
+#     # this is the loop function that handles database tables, APIs and gate menus
+#     main_loop()
 
 
 
