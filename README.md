@@ -33,8 +33,7 @@ Manual mall parking systems are slow, prone to errors and create long queues at 
 ## Technologies / Concepts I plan to use
 > - Python core (functions, loops, conditional statements, lists, dictionaries)  
 > - requests (for API calls)  
-> - json module (to parse data)  
-> - streamlit (for user interface)
+> - JSON module (to parse data)  
 > - SQLite
 > - Requests
 > - datetime

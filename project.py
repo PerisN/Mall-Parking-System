@@ -75,10 +75,12 @@ def exchange_rates():
         response = requests.get(api_url, timeout=5)
         if response.status_code == 200:
             data = response.json()
-            
-            # unpack the dictionary inside the list
+            print('Raw API data received: ', data)
+
+            # check if it is a list and unpack the first item
             if isinstance(data, list) and len(data) > 0:
                 data = data[0]
+
             # extract kes worth against foreign money
             rates = data.get('rate', {})
 
@@ -94,7 +96,7 @@ def exchange_rates():
 
                 # insert data updating rows 
                 cursor.execute("""
-                               INSERT OR REPLACE INTO Extchange_rate (currency_code, rate_to-kes, last_updated)
+                               INSERT OR REPLACE INTO Exchange_rate (currency_code, rate_to_kes, last_updated)
                                VALUES (?, ?, ?)
                                """, ('USD', usd_rate, current_time))
                 cursor.execute("""
@@ -108,7 +110,7 @@ def exchange_rates():
                 print(f'1 KES = {usd_rate} USD | 1 KES = {eur_rate} EUR')
                 return
          
-            print('API responded but data structure was unexpected.')
+            print('API responded but rates are missing.')
     except requests.RequestException as e:
         # incase of a network error
         print(f'Error: Could not connect to frankfurter API ({e}). System defaults to last cached database rates')
@@ -222,50 +224,50 @@ def vehicle_check_out(number_plate, phone_number):
             print(f'Within grace period. Parking is free!')
 
         # currenvy conversion selection
-        choice = 'KES'
-        rate_row = None
-        chosen_currency = 'KES'
-        final_amount = parking_fee
-        applied_rate = 1.0
+    choice = 'KES'
+    rate_row = None
+    chosen_currency = 'KES'
+    final_amount = parking_fee
+    applied_rate = 1.0
     
-        if parking_fee > 0:
-            print(f'Balance Due: KES {parking_fee:,.2f}')
-            choice = input("Select checkout currency (KES, USD, EUR): ").strip().upper()
+    if parking_fee > 0:
+        print(f'Balance Due: KES {parking_fee:,.2f}')
+        choice = input("Select checkout currency (KES, USD, EUR): ").strip().upper()
         
-            if choice in ['USD', 'EUR']:
-                cursor.execute('SELECT rate_to_kes FROM Exchange_Rate WHERE currency_code = ?', (choice,))
-                rate_row = cursor.fetchone()
+        if choice in ['USD', 'EUR']:
+            cursor.execute('SELECT rate_to_kes FROM Exchange_Rate WHERE currency_code = ?', (choice,))
+            rate_row = cursor.fetchone()
             
-        if rate_row:
-            applied_rate = rate_row[0]
-            chosen_currency = choice
-            final_amount = parking_fee * applied_rate
-        else:
-            print(f"⚠️ Exchange rates for {choice} not loaded. Defaulting transaction to KES.")
+            if rate_row:
+                applied_rate = rate_row[0]
+                chosen_currency = choice
+                final_amount = parking_fee * applied_rate
+            else:
+                print(f'Exchange rates for {choice} not loaded. Defaulting transaction to KES.')
 
-    print(f'Total fee: {chosen_currency} {final_amount:,.2f}')
+        print(f'Total fee: {chosen_currency} {final_amount:,.2f}')
 
-    #update database
-    now = datetime.now()
-    checkout_time = now.strftime("%Y-%m-%d %H:%M:%S.%f")
+        #update database
+        now = datetime.now()
+        checkout_time = now.strftime("%Y-%m-%d %H:%M:%S.%f")
     
-    cursor.execute("""
-        INSERT INTO Payments (session_id, amount_kes, currency_used, amount_paid_foreign, exchange_rate, payment_timestamp)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (session_id, parking_fee, chosen_currency, final_amount, applied_rate, checkout_time))
+        cursor.execute("""
+            INSERT INTO Payments (session_id, amount_kes, currency_used, amount_paid_foreign, exchange_rate, payment_timestamp)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (session_id, parking_fee, chosen_currency, final_amount, applied_rate, checkout_time))
         
-    cursor.execute("""
+        cursor.execute("""
                        UPDATE parking_sessions
                        SET exit_timestamp = ?, session_status = 'Completed'
                        WHERE session_id = ?
                        """, (current_time, session_id))
         
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
 
-    # process sms deliveries
-    sms_receipt(number_plate, final_amount, chosen_currency, session_id, phone_number)
-    print(f'Check out complete. Proceed to exit {number_plate}!\n')
+        # process sms deliveries
+        sms_receipt(number_plate, final_amount, chosen_currency, session_id, phone_number)
+        print(f'Check out complete. Proceed to exit {number_plate}!\n')
 
 def main_loop():
     init_database()
