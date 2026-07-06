@@ -20,43 +20,43 @@ def init_database():
         print(f"Blocked! invalid data! Error: {e}")
     cursor = conn.cursor()
 
-# parking sessions tables
+    # parking sessions tables
     cursor.execute("""
-               CREATE TABLE IF NOT EXISTS parking_sessions(
-               session_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               number_plate TEXT,
-               entry_timestamp DATETIME,
-               exit_timestamp DATETIME,
-               grace_period_applied INTEGER,
-               session_status TEXT
-               ) 
-               """)
+                    CREATE TABLE IF NOT EXISTS parking_sessions(
+                    session_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    number_plate TEXT,
+                    entry_timestamp DATETIME,
+                    exit_timestamp DATETIME,
+                    grace_period_applied INTEGER,
+                    session_status TEXT
+                    ) 
+                     """)
     conn.commit()
 
     #Exchange rate table
     cursor.execute("""
-               CREATE TABLE IF NOT EXISTS Exchange_rate(
-               rate_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               currency_code TEXT,
-               rate_to_kes REAL,
-               last_updated DATETIME
-               )
-               """)
+                    CREATE TABLE IF NOT EXISTS Exchange_rate(
+                    rate_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    currency_code TEXT,
+                    rate_to_kes REAL,
+                    last_updated DATETIME
+                    )
+                    """)
     conn.commit()
 
     # Payments table
     cursor.execute("""
-               CREATE TABLE IF NOT EXISTS Payments(
-               payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               session_id INTEGER,
-               amount_kes REAL NOT NULL,
-               currency_used TEXT NOT NULL,
-               amount_paid_foreign REAL NOT NULL,
-               exchange_rate REAL NOT NULL,
-               payment_timestamp DATETIME NOT NULL,
-               FOREIGN KEY (session_id) REFERENCES parking_sessions(session_id)
-               )
-               """)
+                    CREATE TABLE IF NOT EXISTS Payments(
+                    payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id INTEGER,
+                    amount_kes REAL NOT NULL,
+                    currency_used TEXT NOT NULL,
+                    amount_paid_foreign REAL NOT NULL,
+                    exchange_rate REAL NOT NULL,
+                    payment_timestamp DATETIME NOT NULL,
+                    FOREIGN KEY (session_id) REFERENCES parking_sessions(session_id)
+                    )
+                     """)
     conn.commit()
     conn.close()
 
@@ -134,20 +134,19 @@ def sms_receipt(number_plate, amount_paid, currency, session_id, phone_number):
 def vehicle_check_in(number_plate):
     conn = sqlite3.connect("mall_parking_system.db")
     cursor = conn.cursor()
-
     # strip to remove any gaps and upper to write in upper case
     number_plate = number_plate.strip().upper()
 
     # cutoff timestamp for 90 days
     current_time = datetime.now()
+    entry_time_str = current_time.strftime('%Y-%m-%d %H:%M:%S.%f')
+
     ninety_days_time = current_time - timedelta(days=90)
     
  # Count completed visits for this number plate in the last 90 days
     cursor.execute("""
                    SELECT COUNT (*) FROM parking_sessions
-                   WHERE number_plate = ?
-                   AND entry_timestamp >= ?
-                   AND session_status = "Completed"
+                   WHERE number_plate = ? AND entry_timestamp >= ? AND session_status = "Completed"
                    """, (number_plate, ninety_days_time))
     
     num_of_visits = cursor.fetchone()[0]
@@ -163,11 +162,11 @@ def vehicle_check_in(number_plate):
     
     # creating active parking sessions
     cursor.execute("""
-                   INSERT INTO parking_sessions
-                   (number_plate, entry_timestamp, exit_timestamp, grace_period_applied, session_status)
+                   INSERT INTO parking_sessions (number_plate, entry_timestamp, exit_timestamp, grace_period_applied, session_status)
                    VALUES (?, ?, NULL, ?, 'Active')
-                   """, (number_plate, current_time, grace_period_applied))
+                   """, (number_plate, entry_time_str, grace_period_applied))
     conn.commit()
+    conn.close()
 
     print(f"Vehicle {number_plate} checked in successfully at {current_time.strftime('%Y-%m-%d %H:%M:%S')}.\n")
 
@@ -223,7 +222,7 @@ def vehicle_check_out(number_plate, phone_number):
         else:
             print(f'Within grace period. Parking is free!')
 
-        # currenvy conversion selection
+        # currency conversion selection
     choice = 'KES'
     rate_row = None
     chosen_currency = 'KES'
@@ -269,15 +268,58 @@ def vehicle_check_out(number_plate, phone_number):
         sms_receipt(number_plate, final_amount, chosen_currency, session_id, phone_number)
         print(f'Check out complete. Proceed to exit {number_plate}!\n')
 
- # streamlit user interface       
+#streamlit user interface       
 def main():
     st.set_page_config(page_title='Mall Parking System.')
     init_database()
 
     st.title('Automated Mall Parking System')
 
-    #navigation tabs
-    tab1, tab2, tab3 = st.tabs(['Vehicle Check-in', 'Vehicle Check-out', 'Exchange Rates'])
+    tab0, tab1, tab2, tab3 = st.tabs([
+        'About System',
+        'Vehicle Check-In',
+        'Vehicle Check-out',
+        'Exchange Rates'
+    ])
+     
+    # front page with details about system
+    with tab0:
+        st.subheader('Welcome to the Automated Mall Parking System control panel')
+        st.markdown("""
+                    This automated system manages vehicle entries, exits, grace period applied and multi-currency payments for the mall's parking facilities.
+                    """)
+        
+        # system features
+        st.markdown('Core Capabilities')
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("""
+                        Check-In: Registers vehicle plates and instantly tracks entry times.\n
+                        Loyalty Recognition: Automatically reviews the last 90 days of history to reward frequent visitors.
+                        """)
+        with col2: 
+            st.markdown("""
+                        Multi-currency Billing: Dynamically fetches rates from the Frankfurter API to process payments in KES, USD, or EUR.\n
+                        Digital Receipts: Formats real-time SMS receipts upon payment completion.
+                        """)
+        
+        st.write('---')
+
+        # operational rules
+        st.markdown('Parking Policies and Fee')
+
+        with st.expander('Grace Period Policy'):
+            st.write("""
+                    The system dynamically awards grace periods based on customer loyalty data over the last 90 days:\n
+                    Regular Customers (< 20 visits): 50 Minutes Free Parking.\n
+                    Loyal Customers (>= 20 visits): 80 Minutes Free Parking.
+                     """)
+        with st.expander('Tariff and Penalty Structures'):
+            st.write("""
+                     Standard Parking Fine: If a vehicle stays past its designated grace period, a fee of KES 200 is charged for every 20-minute block exceeded.\n
+                    Long-Term Parking Rate: Vehicles parked for 24 hours or longer are automatically billed at a flat rate of KES 3,000 per day.
+                     """)
 
     #Check in
     with tab1:
@@ -298,7 +340,7 @@ def main():
 
         if st.button('Complete check out and pay'):
             if plate_out and phone_num:
-                receipt_text, duration, fee = vehicle_check_out(plate_out, phone_num)
+                receipt_text, duration, fee = vehicle_check_out(plate_out, phone_num, currency_choice)
                 if 'Error' in receipt_text:
                     st.error(receipt_text)
                 else:
@@ -308,7 +350,8 @@ def main():
                     st.success(f"Check out complete. Proceed to exit {plate_out}!")
             else:
                 st.error("Error: Number plate and phone number cannot be empty.")
-                
+
+    # exchange rate            
     with tab3:
         st.header("System Exchange Rates")
         if st.button("Fetch Fresh API Exchange Rates"):
