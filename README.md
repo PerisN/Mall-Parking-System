@@ -8,55 +8,55 @@ Automated Mall-Parking-System
 ---
 
 ## Project Description
-This project helps the user (gate attendants) to track vehicle entry and exit times, calculate the parking fees and bill them accordingly. A grace period of 50 minutes will be applied and if they exceed, they will be charged 200 Kenya Shillings for every extra 20 minutes that they extend with. However, there will be an extended grace period of 30 minutes for frequent customers who will be identified and granted the reward after their 20th visit to the mall in a span of 3 months and they will be identified by their name and vehicle number plate. If a customer wishes to leave their car parked there for longer, they will be charged 3,000 Kenyan Shilling for every 24 hours since they checked in. The program uses databases to maintain a persistent record of frequent customers for grace period extensions and uses a live currency API to process payments in both KES and foreign currencies.
-
+This project helps the user (gate attendants) to track vehicle entry and exit times, calculate the parking fees and bill them accordingly. 
+This are the key features:-
+> - Customer loyalty detection: Scans historical vehicle entries over a rolling 90-day window and automatically upgrades frequent visitors (>=20 visits) from a Standard Tier (50 mins free grace period) to a Loyal Tier (80 mins free grace period).
+> - Progressive tariff calculation: Automatically computes overtime fees at a rate of KES 200 per 20-minute block using ceiling logic, with a hardcoded long-term flat cap of KES 3,000 per day for overnight stays.
+> - Digital SMS receipt generation: Simulates mobile network transmission by compiling and rendering text-optimized digital transaction summaries containing ticket IDs, vehicle plates, allocated slots, and settled fees.
+> - Automatic parking slot allocation: Dynamically tracks garage occupancy up to a 100-car capacity. The system automatically calculates and assigns the next sequentially available parking bay upon check in and instantly frees it up upon check out.
+> - Daily revenue reports: Utilizes aggregate SQL queries to automatically compile a daily ledger, breaking down the exact number of settled invoices and total financial collections grouped by calendar date.
+> - Live administrator dashboard: A digital control tower built for mall managers that shows exactly what is happening in the parking lot in real time. It automatically counts how many cars are parked right now (e.g., 15 out of 100 slots filled) and instantly sums up every shilling collected to show total lifetime earnings at a glance.
+> - Developer "Time Travel" diagnostics: A built-in testing tool that lets developers skip real world waiting times, by checking a box, you can fake how long a car has been parked to instantly test if the system calculates the correct KES fees and long-term caps without crashing.
 ---
 
 ## Purpose/ Problem Solved
-Manual mall parking systems are slow, prone to errors and create long queues at exit barriers. Also, without a structured fee system, drivers tend to abuse the parking lot by leaving their cars all day for free causing a shortage of available spaces for genuine mall customers. Additionally, most mall parking systems lack flexibility to reward frequent customers or accomodate international visitors hence forcing payments exclusively in local currency(KES). This project will build an automated system that uses precise digital time-tracking to eliminate manual errors and automatically applies a 30 minute free parking followed by dynamic biling. This will ensure fair space availability, recognize frequent customers with grace extensions of roughly 20 minutes and fetches live exchange rates to allow multi-currency payments.
+Traditional mall parking setups struggle with messy, manual parking lots where drivers waste time hunting for empty spaces and management has no clear way to track daily earnings. On top of that, people frequently abuse mall parking by dumping their cars there all day, which fills up the lot and limited space for genuine customers who actually want to shop. This project solves these exact problems. It completely automates the parking lot by instantly assigning a specific empty slot to each car at entry, using an automated loyalty system to reward regular shoppers, and enforcing a strict progressive fee system that penalizes people who leave their cars all day. Finally, it gives management a simple, live dashboard that tracks total revenue and available spaces automatically, eliminating paperwork and parking abuse all at once.
 
 ---
 
 ## Planned Features
-- [ ] Vehicle check-in
-- [ ] Vehicle check-out
-- [ ] Time stamping
-- [ ] Parking sessions
-- [ ] Payment table
-- [ ] Time duration calculation
+- [ ] Vehicle check-in.
+- [ ] Vehicle check-out.
+- [ ] Time stamping.
+- [ ] Parking sessions.
+- [ ] Payment table.
+- [ ] Time duration calculation.
 - [ ] Automatic parking fee calculation.
-- [ ] Multi-currency payment calculation
-- [ ] SMS Receipt generation
+- [ ] Automatic parking slot allocation.
+- [ ] Administration dashboards and reports.
+- [ ] Daily revenue reports.
+- [ ] Digital SMS Receipt generation.
 
 ---
 
 ## Technologies / Concepts I plan to use
-> - Python core (functions, loops, conditional statements, lists, dictionaries)  
-> - requests (for API calls)  
-> - json module (to parse data)  
+> - Python core (functions, loops, conditional statements, lists, dictionaries)     
 > - streamlit (for user interface)
 > - SQLite
-> - Requests
 > - datetime
 > - math
-> - External APIs 
-> - JSON
-> - Object-oriented programming 
-
----
-
-## Data Source 
-Frankfurter API will be used to retrieve current exchange rates, allowing parking fees to be displayed in both Kenyan Shillings (KES) and selected foreign currencies.
 
 ---
 
 ## Success Criteria
 The program is considered fully successful when it can:
   > - Record vehicle entry and exit times.
+  > - Accurate sequential slot allocation.
+  > - Accurate parking fee calculation.
+  > - Flawless automated loyalty upgrades.
   > - Calculate parking duration accurately.
   > - Apply the free parking period and loyalty grace period correctly.
-  > - Calculate parking charges automatically.
-  > - Convert charges into selected currencies using a live exchange rate.
+  > - Reliable time-travel testing.
   > - Store all parking records in SQLite.
   > - Handle invalid user input gracefully.
   > - Continue functioning correctly after application restarts.
@@ -65,5 +65,5 @@ The program is considered fully successful when it can:
 
 ## Stretch Goals
   > -  QR code or barcode ticket generation
-  > - Automatic parking slot allocation.
   > - Vehicle entry using license plate recognition.
+  > - Uing live APIs for foreign currency conversion.
